@@ -8,7 +8,7 @@ module sisc (clk, rst_f, ir);
   input clk, rst_f;
   input [31:0] ir;
 
-// declare all internal wires here
+  // declare all internal wires here
   wire rf_we;              // register file write enable
   wire wb_sel;             // writeback mux select
   wire [3:0] alu_op;       // selects ALU operation
@@ -21,7 +21,7 @@ module sisc (clk, rst_f, ir);
   wire [3:0] stat_out;     // Current status register output
 
 
-// component instantiation goes here
+  // component instantiation goes here
   ctrl my_ctrl (clk, rst_f, ir[31:28], ir[27:24], stat_out, rf_we, alu_op, wb_sel);
   rf my_rf (clk, ir[19:16], ir[15:12], ir[23:20], write_data, rf_we, rsa, rsb);
   alu my_alu (clk, rsa, rsb, ir[15:0], stat_out[3], alu_op, ir[27:24], alu_result, alu_stat, stat_en);
