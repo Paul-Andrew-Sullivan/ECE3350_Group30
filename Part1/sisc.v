@@ -47,3 +47,153 @@ module sisc (clk, rst_f, ir);
   end //Fairely self exclamatory we are just using $monitor to print the values
 
 endmodule
+
+/*
+// ECE:3350 SISC processor project
+// main SISC module, Part 2
+
+`timescale 1ns/100ps
+
+module sisc (clk, rst_f);
+
+  // ---------------------------------------------------------------
+  // Top-level ports
+  // ---------------------------------------------------------------
+  input clk, rst_f;
+
+  // ---------------------------------------------------------------
+  // Internal wires
+  // ---------------------------------------------------------------
+
+  // Part 1 datapath
+  wire        rf_we;
+  wire        wb_sel;
+  wire [3:0]  alu_op;
+  wire [31:0] rsa;
+  wire [31:0] rsb;
+  wire [31:0] alu_result;
+  wire [31:0] write_data;
+  wire [3:0]  alu_stat;
+  wire [3:0]  stat_en;
+  wire [3:0]  stat_out;
+
+  // Part 2 control signals
+  wire        ir_load;
+  wire        pc_write;
+  wire        pc_sel;
+  wire        pc_rst;
+  wire        br_sel;
+
+  // Part 2 datapath
+  wire [31:0] instr;
+  wire [15:0] pc_out;
+  wire [15:0] br_addr;
+  wire [31:0] im_data;
+
+  // ---------------------------------------------------------------
+  // Component instantiation
+  // u2=rf, u9=ir, u10=pc are required by autograder
+  // ---------------------------------------------------------------
+
+  ctrl u1 (
+    .clk      (clk),
+    .rst_f    (rst_f),
+    .opcode   (instr[31:28]),
+    .mm       (instr[27:24]),
+    .stat     (stat_out),
+    .rf_we    (rf_we),
+    .alu_op   (alu_op),
+    .wb_sel   (wb_sel),
+    .ir_load  (ir_load),
+    .pc_write (pc_write),
+    .pc_sel   (pc_sel),
+    .pc_rst   (pc_rst),
+    .br_sel   (br_sel)
+  );
+
+  rf u2 (
+    .clk        (clk),
+    .read_rega  (instr[19:16]),
+    .read_regb  (instr[15:12]),
+    .write_reg  (instr[23:20]),
+    .write_data (write_data),
+    .rf_we      (rf_we),
+    .rsa        (rsa),
+    .rsb        (rsb)
+  );
+
+  alu u3 (
+    .clk        (clk),
+    .rsa        (rsa),
+    .rsb        (rsb),
+    .imm        (instr[15:0]),
+    .c_in       (stat_out[3]),
+    .alu_op     (alu_op),
+    .funct      (instr[27:24]),
+    .alu_result (alu_result),
+    .stat       (alu_stat),
+    .stat_en    (stat_en)
+  );
+
+  statreg u4 (
+    .clk    (clk),
+    .in     (alu_stat),
+    .enable (stat_en),
+    .out    (stat_out)
+  );
+
+  mux32 u5 (
+    .in_a (alu_result),
+    .in_b (32'h00000000),
+    .sel  (wb_sel),
+    .out  (write_data)
+  );
+
+  im u6 (
+    .read_addr (pc_out),
+    .read_data (im_data)
+  );
+
+  br u7 (
+    .pc_out  (pc_out),
+    .imm     (instr[15:0]),
+    .br_sel  (br_sel),
+    .br_addr (br_addr)
+  );
+
+  ir u9 (
+    .clk       (clk),
+    .ir_load   (ir_load),
+    .read_data (im_data),
+    .instr     (instr)
+  );
+
+  pc u10 (
+    .clk      (clk),
+    .br_addr  (br_addr),
+    .pc_sel   (pc_sel),
+    .pc_write (pc_write),
+    .pc_rst   (pc_rst),
+    .pc_out   (pc_out)
+  );
+
+  // ---------------------------------------------------------------
+  // Monitor (Part 2 required signals)
+  // ---------------------------------------------------------------
+  initial begin
+    $monitor($time,
+             " IR=%h PC=%h R1=%h R2=%h R3=%h R4=%h ALU_OP=%h BR_SEL=%b PC_WRITE=%b PC_SEL=%b",
+             instr,
+             pc_out,
+             u2.ram_array[1],
+             u2.ram_array[2],
+             u2.ram_array[3],
+             u2.ram_array[4],
+             alu_op,
+             br_sel,
+             pc_write,
+             pc_sel);
+  end
+
+endmodule
+*/
