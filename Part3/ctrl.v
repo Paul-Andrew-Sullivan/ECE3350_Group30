@@ -139,7 +139,10 @@ module ctrl (clk, rst_f, opcode, mm, stat, rf_we, alu_op, wb_sel,
           end
           LOD:
           begin
-            addr_sel = mm[3]; // 1=indexed (LDX), 0=absolute (LDA)
+            // Hold alu_op=0100 for indexed LDX so alu_result latches Rs+imm
+            // at the mem->writeback posedge instead of a stale/wrong re-compute
+            if (mm[3]) alu_op = 4'b0100;
+            addr_sel = mm[3];
           end
           default: ;
         endcase
@@ -151,12 +154,13 @@ module ctrl (clk, rst_f, opcode, mm, stat, rf_we, alu_op, wb_sel,
           REG_OP, REG_IM:
           begin
             rf_we  = 1'b1;
-            wb_sel = 1'b0; // ALU result
+            wb_sel = 1'b0;
           end
           LOD:
           begin
-            rf_we  = 1'b1;
-            wb_sel = 1'b1; // DM read_data
+            rf_we    = 1'b1;
+            wb_sel   = 1'b1;
+            addr_sel = mm[3]; // keep dm_addr stable so dm_read_data stays valid
           end
           default: begin rf_we = 1'b0; wb_sel = 1'b0; end
         endcase
