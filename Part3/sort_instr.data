@@ -1,0 +1,29 @@
+// ECE:3350 SISC processor project
+// Bubble sort program - sorts N elements at DM[1..N] in ascending order.
+// N is stored at DM[0].
+//
+// Register usage:
+//   R1 = N (number of elements, from DM[0])
+//   R2 = i (current index, starts at 1)
+//   R3 = swapped flag (0 = no swaps this pass, 1 = had a swap)
+//   R4 = M[i]
+//   R5 = M[i+1]
+//   R6 = scratch (i - N comparison)
+//
+A0100000 //00: LDA  R1,#0x0000      R1 = N = M[0]
+11300000 //01: ADD  R3,R0,R0        swapped = 0            (OUTER)
+21200001 //02: ADI  R2,R0,#1        i = 1
+12621000 //03: SUB  R6,R2,R1        R6 = i - N             (INNER)
+6200000E //04: BNE  N,#0x000E       if i >= N, goto DONE
+A8420000 //05: LDX  R4,R2,#0        R4 = M[i]
+A8520001 //06: LDX  R5,R2,#1        R5 = M[i+1]
+12645000 //07: SUB  R6,R4,R5        R6 = M[i] - M[i+1]
+4300000C //08: BRA  NZ,#0x000C      if M[i] <= M[i+1], skip swap
+B8520000 //09: STX  R5,R2,#0        M[i]   = R5
+B8420001 //0A: STX  R4,R2,#1        M[i+1] = R4
+21300001 //0B: ADI  R3,R0,#1        swapped = 1
+21220001 //0C: ADI  R2,R2,#1        i++                    (NO_SWAP)
+60000003 //0D: BNE  #0,#0x0003      goto INNER (unconditional)
+21330000 //0E: ADI  R3,R3,#0        set flags from swapped  (DONE)
+61000001 //0F: BNE  Z,#0x0001       if swapped != 0, goto OUTER
+F0000000 //10: HLT

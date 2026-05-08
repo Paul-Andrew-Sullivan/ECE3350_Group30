@@ -29,19 +29,24 @@ module sisc (clk, rst_f);
   wire dm_we;
   wire rb_sel;          // selects Rd (1) or Rt (0) as RF second read address
   wire addr_sel;        // selects ALU result (1) or immediate (0) as DM address
+  wire wb_addr_sel;     // selects Rs (1) or Rd (0) as RF write address for SWAP
   wire [31:0] dm_read_data;
   wire [15:0] dm_addr;
   wire [3:0]  rb_addr;  // mux4 output: second RF read address
+  wire [3:0]  rf_write_addr; // mux: Rd normally, Rs for SWAP second write
 
   ctrl u1 (clk, rst_f, instr[31:28], instr[27:24], stat_out,
            rf_we, alu_op, wb_sel,
            ir_load, pc_write, pc_sel, pc_rst, br_sel,
-           dm_we, rb_sel, addr_sel);
+           dm_we, rb_sel, addr_sel, wb_addr_sel);
 
   // mux4 routes Rd address to the RF second port for store instructions
   mux4 u12 (instr[15:12], instr[23:20], rb_sel, rb_addr);
 
-  rf u2 (clk, instr[19:16], rb_addr, instr[23:20], write_data, rf_we, rsa, rsb);
+  // wb_addr_sel=1 during SWAP writeback2 to write old Rd value into Rs
+  assign rf_write_addr = wb_addr_sel ? instr[19:16] : instr[23:20];
+
+  rf u2 (clk, instr[19:16], rb_addr, rf_write_addr, write_data, rf_we, rsa, rsb);
 
   alu u3 (clk, rsa, rsb, instr[15:0], stat_out[3], alu_op, instr[27:24], alu_result, alu_stat, stat_en);
 
